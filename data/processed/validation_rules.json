@@ -1,0 +1,72 @@
+[
+  {
+    "rule_name": "Time Sequence Validation",
+    "description": "Arrival time must be after departure time",
+    "sql_check": "SELECT * FROM voyage_performance WHERE arrival_at <= departure_at",
+    "severity": "CRITICAL",
+    "business_impact": "Invalid time sequences indicate data entry errors or system clock issues"
+  },
+  {
+    "rule_name": "Speed Limit Check",
+    "description": "Average speed must not exceed a realistic maximum for vessels",
+    "sql_check": "SELECT * FROM voyage_performance WHERE avg_speed_knots > 50",
+    "severity": "HIGH",
+    "business_impact": "Unrealistic speeds may indicate errors in distance or time recording"
+  },
+  {
+    "rule_name": "Geographic Coordinate Validation",
+    "description": "Latitude must be between -90 and 90, and longitude between -180 and 180",
+    "sql_check": "SELECT * FROM voyage_performance WHERE departure_lat < -90 OR departure_lat > 90 OR departure_lon < -180 OR departure_lon > 180 OR arrival_lat < -90 OR arrival_lat > 90 OR arrival_lon < -180 OR arrival_lon > 180",
+    "severity": "HIGH",
+    "business_impact": "Invalid coordinates can mislead route tracking and analysis"
+  },
+  {
+    "rule_name": "Distance Calculation Consistency",
+    "description": "Distance should be consistent with speed and time",
+    "sql_check": "SELECT * FROM voyage_performance WHERE distance_nm < (EXTRACT(EPOCH FROM (arrival_at - departure_at)) / 3600) * avg_speed_knots",
+    "severity": "HIGH",
+    "business_impact": "Inconsistent distance can cause errors in voyage performance analysis"
+  },
+  {
+    "rule_name": "Fuel Consumption Validity",
+    "description": "Fuel consumption must be within realistic bounds for voyage distance",
+    "sql_check": "SELECT * FROM voyage_performance WHERE heavy_fuel_oil_cons < 0 OR heavy_fuel_oil_cons > distance_nm * 0.1",
+    "severity": "MEDIUM",
+    "business_impact": "Incorrect fuel data affects operational efficiency analysis"
+  },
+  {
+    "rule_name": "Cargo Quantity Consistency",
+    "description": "Cargo quantity must be zero when the vessel is in ballast condition",
+    "sql_check": "SELECT * FROM voyage_performance WHERE is_ballast = TRUE AND cargo_qty_mt > 0",
+    "severity": "MEDIUM",
+    "business_impact": "Inaccurate cargo data can distort cargo handling metrics"
+  },
+  {
+    "rule_name": "Anomaly Flag Consistency",
+    "description": "Anomaly type must be specified if is_anomaly is true",
+    "sql_check": "SELECT * FROM voyage_performance WHERE is_anomaly = TRUE AND (anomaly_type IS NULL OR anomaly_type = '')",
+    "severity": "LOW",
+    "business_impact": "Lack of anomaly type information can hinder issue resolution"
+  },
+  {
+    "rule_name": "Port Name Completeness",
+    "description": "Departure and arrival ports must not be null",
+    "sql_check": "SELECT * FROM voyage_performance WHERE departure_port IS NULL OR arrival_port IS NULL",
+    "severity": "MEDIUM",
+    "business_impact": "Missing port information affects route planning and tracking"
+  },
+  {
+    "rule_name": "Timestamps Format Compliance",
+    "description": "Created and updated timestamps must be in correct format and not null",
+    "sql_check": "SELECT * FROM voyage_performance WHERE created_at IS NULL OR updated_at IS NULL",
+    "severity": "LOW",
+    "business_impact": "Missing timestamps can affect data integrity and change tracking"
+  },
+  {
+    "rule_name": "Non-negative Values Check",
+    "description": "Distance, average speed, and cargo quantity must be non-negative",
+    "sql_check": "SELECT * FROM voyage_performance WHERE distance_nm < 0 OR avg_speed_knots < 0 OR cargo_qty_mt < 0",
+    "severity": "CRITICAL",
+    "business_impact": "Negative values indicate entry errors that affect operational metrics"
+  }
+]
