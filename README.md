@@ -1,6 +1,7 @@
 # AI-Powered SQL Query Generator and Data Quality Engine
 
 An intelligent business intelligence system that combines natural language processing with automated data quality monitoring. Users can query databases in plain English while AI automatically detects anomalies and generates validation rules.
+[▶ Watch the Demo](demo.mp4)
 
 ## Overview
 
